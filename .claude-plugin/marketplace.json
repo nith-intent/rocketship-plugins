@@ -1,0 +1,12 @@
+{
+  "name": "rocketship-plugins",
+  "description": "INTENT's Rocketship: your own Claude Code takes its next task from Rocketship and reports back.",
+  "owner": { "name": "INTENT" },
+  "plugins": [
+    {
+      "name": "rocketship",
+      "source": "./plugins/rocketship",
+      "description": "Connect your Claude Code to Rocketship: /rocketship:connect, /rocketship:next, /rocketship:handoff."
+    }
+  ]
+}

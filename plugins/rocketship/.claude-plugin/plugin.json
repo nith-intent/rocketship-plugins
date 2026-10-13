@@ -1,0 +1,5 @@
+{
+  "name": "rocketship",
+  "description": "INTENT's Rocketship: take your next task, post what you did, hand it off. Rocketship never sees your Claude sign-in; it only sees the Rocketship token you made on Me.",
+  "author": { "name": "INTENT" }
+}
