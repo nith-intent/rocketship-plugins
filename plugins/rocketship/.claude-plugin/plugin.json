@@ -1,5 +1,8 @@
 {
   "name": "rocketship",
-  "description": "INTENT's Rocketship: take your next task, post what you did, hand it off. Rocketship never sees your Claude sign-in; it only sees the Rocketship token you made on Me.",
-  "author": { "name": "INTENT" }
+  "displayName": "Rocketship",
+  "version": "0.2.0",
+  "description": "INTENT's Rocketship in your IDE: load the project (brief, modules, meetings, maps, board, rules), take your next task, ask a question, hand it off. Rocketship never sees your Claude sign-in; it only sees the Rocketship key you made on Me.",
+  "author": { "name": "INTENT" },
+  "repository": "https://github.com/nith-intent/rocketship-plugins"
 }

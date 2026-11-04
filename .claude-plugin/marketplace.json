@@ -1,12 +1,14 @@
 {
   "name": "rocketship-plugins",
-  "description": "INTENT's Rocketship: your own Claude Code takes its next task from Rocketship and reports back.",
-  "owner": { "name": "INTENT" },
+  "description": "INTENT's Rocketship in your IDE: your own Claude Code loads the project, takes its next task from Rocketship and reports back.",
+  "owner": {
+    "name": "INTENT"
+  },
   "plugins": [
     {
       "name": "rocketship",
       "source": "./plugins/rocketship",
-      "description": "Connect your Claude Code to Rocketship: /rocketship:connect, /rocketship:next, /rocketship:handoff."
+      "description": "Connect your Claude Code to Rocketship: /rocketship:connect, /rocketship:project, /rocketship:next, /rocketship:handoff."
     }
   ]
 }

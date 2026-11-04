@@ -2,9 +2,9 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup|resume|clear",
+        "matcher": "startup|resume|clear|compact",
         "hooks": [
-          { "type": "http", "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks", "headers": { "Authorization": "Bearer $ROCKETSHIP_TOKEN" }, "allowedEnvVars": ["ROCKETSHIP_TOKEN"], "timeout": 10 }
+          { "type": "command", "command": "sh", "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/session-start.sh"], "timeout": 10, "statusMessage": "Loading Rocketship context" }
         ]
       }
     ],
@@ -12,14 +12,14 @@
       {
         "matcher": "Edit|Write|MultiEdit|NotebookEdit",
         "hooks": [
-          { "type": "http", "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks", "headers": { "Authorization": "Bearer $ROCKETSHIP_TOKEN" }, "allowedEnvVars": ["ROCKETSHIP_TOKEN"], "timeout": 5, "async": true }
+          { "type": "http", "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks", "headers": { "Authorization": "Bearer $ROCKETSHIP_TOKEN" }, "allowedEnvVars": ["ROCKETSHIP_TOKEN"], "timeout": 3 }
         ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          { "type": "http", "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks", "headers": { "Authorization": "Bearer $ROCKETSHIP_TOKEN" }, "allowedEnvVars": ["ROCKETSHIP_TOKEN"], "timeout": 5, "async": true }
+          { "type": "http", "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks", "headers": { "Authorization": "Bearer $ROCKETSHIP_TOKEN" }, "allowedEnvVars": ["ROCKETSHIP_TOKEN"], "timeout": 3 }
         ]
       }
     ],
