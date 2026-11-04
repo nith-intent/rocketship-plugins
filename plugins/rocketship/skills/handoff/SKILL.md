@@ -9,7 +9,7 @@ description: Hand a finished task back to Rocketship with a summary and the pull
    - Call `get_fix_prompt` with the ClickUp task id. It gives the failed tests, what was expected and what was seen, the steps and the page.
    - Call `explain_failure` if the cause is not plain from that.
    - Fix those first, then come back to step 2. Do not hand off work QA already failed without fixing what it found.
-2. Check the work against the rules: the acceptance list in `get_work_item`, the rules for its module and section (`project_modules` or `rules`), and `house_rules`. If a requirement is still unclear, call `ask_question` on its section and say the handoff waits on the answer.
+2. Check the work against the rules: the acceptance list in `get_work_item`, the rules for its module and section (`project_modules` or `rules`), and `house_rules`. If a requirement is still unclear, call `ask_question` with the project, its `module` and `section` and the question as `text`, and say the handoff waits on the answer.
 3. Make sure the work is pushed and a pull request exists, titled with the item's custom id. If there is no pull request yet, offer to open one with `gh pr create` and wait for the person's go.
 4. Run the Done-means checks the brief listed (typecheck, lint, tests, build). If any fails, say so and stop; do not hand off.
 5. Write a two-sentence summary: what changed and how it was checked. No file names, no jargon; the lead and the client's QA read it. Never quote a meeting or name a client's people in it.

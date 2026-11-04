@@ -20,7 +20,12 @@ if [ -z "${ROCKETSHIP_TOKEN:-}" ]; then
   exit 0
 fi
 
-dir="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+# The folder is the session's own cwd from the hook's JSON, else the project dir, else here.
+dir=""
+if command -v jq >/dev/null 2>&1; then
+  dir=$(printf '%s' "$payload" | jq -r '.cwd // empty' 2>/dev/null)
+fi
+[ -n "$dir" ] && [ -d "$dir" ] || dir="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 root=$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null) || root="$dir"
 
 project=""

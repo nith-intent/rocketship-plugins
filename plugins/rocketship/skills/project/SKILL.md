@@ -3,6 +3,7 @@ name: project
 description: Load the Rocketship project this repo belongs to (brief, modules and sections, meetings, process maps, ClickUp board, rules) and keep a short working brief. Use when the person types /rocketship:project, at the start of work in a client repo, and before answering "what did the client say about X", "how should X work" or "what was agreed on X".
 argument-hint: "[project slug] [section]"
 allowed-tools:
+  - mcp__plugin_rocketship_rocketship__whoami
   - mcp__plugin_rocketship_rocketship__load_project
   - mcp__plugin_rocketship_rocketship__project_modules
   - mcp__plugin_rocketship_rocketship__project_meetings
@@ -12,6 +13,7 @@ allowed-tools:
   - mcp__plugin_rocketship_rocketship__project_maps
   - mcp__plugin_rocketship_rocketship__project_documents
   - mcp__plugin_rocketship_rocketship__project_team
+  - mcp__plugin_rocketship_rocketship__my_promises
   - mcp__plugin_rocketship_rocketship__board_tasks
   - mcp__plugin_rocketship_rocketship__task_detail
   - mcp__plugin_rocketship_rocketship__rules
@@ -33,12 +35,13 @@ Rocketship holds what the client asked for: the meetings, the process maps, the 
 ## Load it
 
 1. Call `load_project` once, with the slug. It gives the brief, where the project stands, and an index of its sections (overview, modules, rules, meetings, maps, board, knowledge, people, promises) with how to read each.
-2. Read only the sections the work needs, by `load_project` with `section` (and `cursor` to page on), or the tool for it:
+2. Read only the sections the work needs, by `load_project` with `section` (and `cursor` to page on), or the tool for it. Each takes `project` (the slug):
    - modules and sections: `project_modules`. Use the module and section names as Rocketship gives them; they match the app's menu.
-   - meetings: `project_meetings`, then `meeting_detail` for the notes, decisions and actions of one meeting.
-   - process maps: `project_maps`, each step with its lane and the yes and no branches.
+   - meetings: `project_meetings`, newest first, then `meeting_detail` with `meeting` (its id) for the notes, decisions, actions and the rules drawn from it (`part` "rules"), or what was said (`part` "transcript").
+   - process maps: `project_maps` lists the maps; with `map` and `page` (by number) it gives the steps, each with its lane, who does it and the yes and no branches.
    - the board: `board_tasks`, then `task_detail` for one task's full description, checklists and comments.
    - rules: `rules` (the client's agreed rules), `intent_rules` and `house_rules` (INTENT's own).
+   - documents, people and promises: `project_documents`, `project_team` (who to ask, never a phone or email), `my_promises` (what you owe and are owed).
 3. When an answer ends with a "read on" line, read on only if the work needs the rest. Never read the whole board or every transcript just in case.
 
 ## Keep a working brief
@@ -58,10 +61,10 @@ After a compaction Rocketship sends its context again. Call `load_project` again
 Never answer from memory or from the code alone.
 
 1. Search first: `search_meetings` with the feature's words (add `project_slug`), and `project_maps` for the steps of that process.
-2. Read the lines around each hit with `get_transcript_excerpt` (the meeting id and `from`), and `meeting_detail` for the decisions.
+2. Read the lines around each hit with `get_transcript_excerpt` (`meeting_id` and `from`, the line to start at), and `meeting_detail` for the decisions and the rules drawn from that meeting.
 3. Answer in a few sentences, citing each source as the meeting's date and title with the line, for example "Timesheet training, 21 Oct, lines 412 to 418", or the map's name and step.
 4. Where the latest meeting changed an earlier one, the latest wins: say so.
-5. If nothing settles it, say so plainly and offer `ask_question` on the section, so Jenny or the lead answers. Never fill the gap with a guess.
+5. If nothing settles it, say so plainly and offer `ask_question` (with `project`, and `module` and `section` as the Modules tab names them, and the question in one sentence as `text`), so Jenny answers. Her answer becomes a rule on that section. Never fill the gap with a guess.
 
 ## Rules
 
