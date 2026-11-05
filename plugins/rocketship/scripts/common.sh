@@ -7,20 +7,38 @@
 #                            Without it, and without a .rocketship.json, nothing more is sent.
 #   rocketship-down          when a call last failed, why, and for which key. For 60 seconds after
 #                            a failure no hook but SessionStart calls Rocketship, so a slow or dead
-#                            server never holds up a message. A new key clears it.
+#                            server never holds up a message. A new key, or a call that works,
+#                            clears it.
 
 URL="${ROCKETSHIP_HOOK_URL:-https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks}"
 
+# A key as it was pasted, kept to the characters a key has (rk_ and base64url): a space, a line
+# break or quotes pasted around it never break the call, and nothing in it can reach curl's config.
+clean_key() { printf '%s' "$1" | tr -cd 'A-Za-z0-9_-'; }
+
 # The key: the one Claude Code keeps for the plugin (asked once when the plugin is enabled, kept in
 # the keychain, handed to hooks as CLAUDE_PLUGIN_OPTION_ROCKETSHIP_KEY), else ROCKETSHIP_TOKEN from
-# the profile. Every hook reads it as ROCKETSHIP_TOKEN from here on.
-ROCKETSHIP_TOKEN="${CLAUDE_PLUGIN_OPTION_ROCKETSHIP_KEY:-${ROCKETSHIP_TOKEN:-}}"
+# the profile. Every hook reads it as ROCKETSHIP_TOKEN from here on. When both are set and differ,
+# the profile's goes too, as X-Rocketship-Key (ALT_KEY): Rocketship takes the first that works, so a
+# key left in the keychain after it was revoked never hides a new one in the profile.
+OPTION_KEY=$(clean_key "${CLAUDE_PLUGIN_OPTION_ROCKETSHIP_KEY:-}")
+PROFILE_KEY=$(clean_key "${ROCKETSHIP_TOKEN:-}")
+ROCKETSHIP_TOKEN="${OPTION_KEY:-$PROFILE_KEY}"
+ALT_KEY=""
+[ -n "$OPTION_KEY" ] && [ -n "$PROFILE_KEY" ] && [ "$OPTION_KEY" != "$PROFILE_KEY" ] && ALT_KEY="$PROFILE_KEY"
+
+# Where a person puts a key, said the same in every message.
+KEY_WHERE='paste it in /plugin > Installed > rocketship > Configure options (in VS Code: /plugins, then the gear on rocketship), and start a new session'
+
 STATE_DIR="${TMPDIR:-/tmp}"
 STATE_DIR="${STATE_DIR%/}"
 DOWN_FILE="$STATE_DIR/rocketship-down"
 DOWN_SECONDS=60
 
 have_jq() { command -v jq >/dev/null 2>&1; }
+
+# jq's raw output without carriage returns: a native jq.exe on Windows writes CRLF.
+jq_text() { jq -r "$@" 2>/dev/null | tr -d '\r'; }
 
 # A top-level string field of the hook's JSON, still JSON-escaped (fit to put back into JSON).
 json_raw() {
@@ -30,7 +48,7 @@ json_raw() {
 # A string field of the hook's JSON, as plain text.
 json_field() {
   if have_jq; then
-    printf '%s' "$payload" | jq -r --arg k "$1" '.[$k] // empty' 2>/dev/null
+    printf '%s' "$payload" | jq_text --arg k "$1" '.[$k] // empty'
   else
     json_raw "$1" | sed -e 's/\\\//\//g' -e 's/\\"/"/g' -e 's/\\\\/\\/g'
   fi
@@ -60,7 +78,7 @@ slug_or_empty() {
 project_of_root() {
   [ -f "$root/.rocketship.json" ] || return 0
   if have_jq; then
-    found=$(jq -r '.project // empty' "$root/.rocketship.json" 2>/dev/null)
+    found=$(jq_text '.project // empty' "$root/.rocketship.json")
   else
     found=$(sed -n 's/.*"project"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$root/.rocketship.json" | head -n 1)
   fi
@@ -91,7 +109,7 @@ on_project() {
   return 0
 }
 
-key_sum() { printf '%s' "${ROCKETSHIP_TOKEN:-}" | cksum | cut -d ' ' -f 1; }
+key_sum() { printf '%s %s' "${ROCKETSHIP_TOKEN:-}" "$ALT_KEY" | cksum | cut -d ' ' -f 1; }
 
 # True when a call with this key failed in the last minute. $down_reason holds why.
 recently_down() {
@@ -115,25 +133,40 @@ failure_words() {
   case "$1" in
     401|403)
       if have_jq; then
-        why=$(jq -r '.reason // empty' "$2" 2>/dev/null)
+        why=$(jq_text '.reason // empty' "$2")
       else
         why=$(sed -n 's/.*"reason"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$2" 2>/dev/null | head -n 1)
       fi
       [ -n "$why" ] || why="The key was not accepted."
-      printf 'Rocketship did not accept this Claude Code: %s Then run /rocketship:connect.' "$why"
+      if [ "$1" = 401 ]; then
+        printf 'Rocketship did not accept this Claude Code: %s Then %s.' "$why" "$KEY_WHERE"
+      else
+        printf 'Rocketship did not accept this Claude Code: %s' "$why"
+      fi
       ;;
-    5??) printf 'Rocketship had an error, so this session has no Rocketship context. It is tried again in a minute.' ;;
-    000|'') printf 'Rocketship could not be reached, so this session has no Rocketship context. It is tried again in a minute.' ;;
+    5??) printf 'Rocketship had an error, so this session has no Rocketship context. Start a new session once it is back.' ;;
+    000|'') printf 'Rocketship could not be reached, so this session has no Rocketship context. Start a new session, or run /mcp to reconnect, once it is back.' ;;
     *) printf 'Rocketship answered with an error (%s), so this session has no Rocketship context. Run /rocketship:connect to check.' "$1" ;;
   esac
 }
 
-# Posts $1 (JSON) to Rocketship with the key on curl's config input, never on the command line.
+# Text fit to sit in a quoted value of curl's config: line breaks made spaces (JSON needs none
+# outside its strings), backslashes and quotes escaped, so curl reads back exactly the JSON.
+config_quote() {
+  printf '%s' "$1" | tr '\r\n' '  ' | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'
+}
+
+# Posts $1 (JSON) to Rocketship. The key and the JSON go on curl's config input, never on the
+# command line: nothing shows in a process list or a shell's history, Windows' 32,767-character
+# command line never cuts a long message, and Git Bash never rewrites what looks like a path in it.
 # Extra curl arguments follow. Prints the HTTP status, 000 when nothing answered.
 post() {
   data=$1
   shift
-  code=$(printf 'header = "Authorization: Bearer %s"\n' "$ROCKETSHIP_TOKEN" \
-    | curl -sS -K - -X POST -H 'Content-Type: application/json' "$@" -w '%{http_code}' --data-binary "$data" "$URL" 2>/dev/null)
+  code=$( {
+      printf 'header = "Authorization: Bearer %s"\n' "$ROCKETSHIP_TOKEN"
+      [ -z "$ALT_KEY" ] || printf 'header = "X-Rocketship-Key: %s"\n' "$ALT_KEY"
+      printf 'data-binary = "%s"\n' "$(config_quote "$data")"
+    } | curl -sS -K - -X POST -H 'Content-Type: application/json' "$@" -w '%{http_code}' "$URL" 2>/dev/null)
   printf '%s' "${code:-000}"
 }

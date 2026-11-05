@@ -22,10 +22,16 @@ trap 'rm -f "$body"' EXIT
 
 set -- --max-time 2 -o "$body"
 [ -n "$project" ] && set -- "$@" -H "X-Rocketship-Project: $project"
-code=$(post "$payload" "$@")
+# Only what Rocketship reads: the session, its folder and the message, never the rest of the hook's JSON.
+data=$(printf '{"hook_event_name":"UserPromptSubmit","session_id":"%s","cwd":"%s","prompt":"%s"}' \
+  "$(json_raw session_id)" "$(json_raw cwd)" "$(json_raw prompt)")
+code=$(post "$data" "$@")
 
 case "$code" in
-  2??) grep -q hookSpecificOutput "$body" 2>/dev/null && cat "$body" && printf '\n' ;;
+  2??)
+    clear_down
+    grep -q hookSpecificOutput "$body" 2>/dev/null && cat "$body" && printf '\n'
+    ;;
   *) mark_down "$(failure_words "$code" "$body")" ;;
 esac
 exit 0

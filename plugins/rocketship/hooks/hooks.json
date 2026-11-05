@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/session-start.sh\"",
-            "timeout": 6,
+            "timeout": 10,
             "statusMessage": "Loading Rocketship context"
           }
         ]
@@ -19,7 +19,7 @@
           {
             "type": "command",
             "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/user-prompt.sh\"",
-            "timeout": 4
+            "timeout": 5
           }
         ]
       }
@@ -53,7 +53,7 @@
           {
             "type": "command",
             "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/post-event.sh\"",
-            "timeout": 1
+            "timeout": 3
           }
         ]
       }

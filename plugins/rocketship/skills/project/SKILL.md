@@ -31,7 +31,7 @@ Rocketship holds what the client asked for: the meetings, the process maps, the 
 
 1. If the person named a project slug (`$ARGUMENTS`), use it.
 2. Else read `.rocketship.json` at the repo root (`git rev-parse --show-toplevel`). It holds `{"project": "<slug>"}`. Use that slug.
-3. Else call `load_project` with no slug. Rocketship works it out from the repo and your claimed task. If it cannot, it says which projects you can open: ask the person which one, and offer to write `.rocketship.json` with it (a one-line file they commit; it holds only the slug).
+3. Else, if the session's brief says this folder is on no Rocketship project, ask the person which project they mean and stop until they say. Otherwise call `load_project` with no slug. Rocketship works it out from this folder's session, the repo and your claimed task. If it cannot, it says which projects you can open: ask the person which one, and offer to write `.rocketship.json` with it (a one-line file; it holds only the slug). Where the client owns the repository, keep it out of commits by adding `.rocketship.json` to `.git/info/exclude`.
 
 ## Load it
 

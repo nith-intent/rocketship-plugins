@@ -11,20 +11,25 @@
 # marker for this session is kept (common.sh); only then, or with a .rocketship.json, do the other
 # hooks send anything. A project it only guessed (from a claimed task, or one of several) is never
 # kept. When the call fails the person is told why, in one line, and Claude is given the same line.
-# No key: nothing is sent and nothing is said. It always posts, even within a minute of another
-# hook's failure, since a session that misses its start has no marker for the rest of its life.
+# No key: nothing is sent, and the person is told in one line where to put one. With a key it
+# always posts, even within a minute of another hook's failure, since a session that misses its
+# start has no marker for the rest of its life.
 # The script always exits 0: a session never fails to start because Rocketship is down.
 
 . "$(dirname "$0")/common.sh"
 
 payload=$(cat)
-[ -n "${ROCKETSHIP_TOKEN:-}" ] || exit 0
 
 # One line for the person (systemMessage) and the same for Claude (additionalContext).
 say() {
   words=$(json_escape "$1")
   printf '{"systemMessage":"%s","hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$words" "$words"
 }
+
+if [ -z "${ROCKETSHIP_TOKEN:-}" ]; then
+  say "Rocketship has no key yet, so this session has no Rocketship context. Make one on Me in Rocketship, then $KEY_WHERE."
+  exit 0
+fi
 
 find_root
 marker=$(session_marker)

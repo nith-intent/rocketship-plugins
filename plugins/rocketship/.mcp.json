@@ -5,7 +5,8 @@
       "url": "https://rocketship.72-60-110-109.sslip.io/api/mcp",
       "headers": {
         "Authorization": "Bearer ${user_config.rocketship_key}",
-        "X-Rocketship-Key": "${ROCKETSHIP_TOKEN:-}"
+        "X-Rocketship-Key": "${ROCKETSHIP_TOKEN:-}",
+        "X-Rocketship-Folder": "${CLAUDE_PROJECT_DIR}"
       }
     }
   }
