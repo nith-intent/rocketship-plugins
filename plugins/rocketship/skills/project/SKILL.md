@@ -5,6 +5,7 @@ argument-hint: "[project slug] [section]"
 allowed-tools:
   - mcp__plugin_rocketship_rocketship__whoami
   - mcp__plugin_rocketship_rocketship__load_project
+  - mcp__plugin_rocketship_rocketship__find_in_project
   - mcp__plugin_rocketship_rocketship__project_modules
   - mcp__plugin_rocketship_rocketship__project_meetings
   - mcp__plugin_rocketship_rocketship__meeting_detail

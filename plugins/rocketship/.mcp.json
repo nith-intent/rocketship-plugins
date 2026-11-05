@@ -3,7 +3,7 @@
     "rocketship": {
       "type": "http",
       "url": "https://rocketship.72-60-110-109.sslip.io/api/mcp",
-      "headers": { "Authorization": "Bearer ${ROCKETSHIP_TOKEN}" }
+      "headers": { "Authorization": "Bearer ${ROCKETSHIP_TOKEN:-}" }
     }
   }
 }

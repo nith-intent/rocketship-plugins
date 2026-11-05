@@ -5,38 +5,27 @@
 # short reply, a command, or a message nothing in the project bears on. Rocketship reads the
 # message for its words and never keeps it.
 #
-# Quiet by design: no key, no answer in time, or any error, and the message goes on unchanged.
-# The token reaches curl on its config input, never on the command line.
+# Only for a project: unless the repo has a .rocketship.json or SessionStart found its project,
+# the message never leaves the machine. Quiet by design: no key, a failure in the last minute, no
+# answer within 2 seconds, or any error, and the message goes on unchanged.
 
-URL="${ROCKETSHIP_HOOK_URL:-https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks}"
+. "$(dirname "$0")/common.sh"
 
 payload=$(cat)
 [ -n "${ROCKETSHIP_TOKEN:-}" ] || exit 0
+find_root
+on_project || exit 0
+recently_down && exit 0
 
-dir=""
-if command -v jq >/dev/null 2>&1; then
-  dir=$(printf '%s' "$payload" | jq -r '.cwd // empty' 2>/dev/null)
-fi
-[ -n "$dir" ] && [ -d "$dir" ] || dir="${CLAUDE_PROJECT_DIR:-$(pwd)}"
-root=$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null) || root="$dir"
+body=$(mktemp "$STATE_DIR/rocketship-body.XXXXXX" 2>/dev/null) || exit 0
+trap 'rm -f "$body"' EXIT
 
-project=""
-if [ -f "$root/.rocketship.json" ]; then
-  if command -v jq >/dev/null 2>&1; then
-    project=$(jq -r '.project // empty' "$root/.rocketship.json" 2>/dev/null)
-  else
-    project=$(sed -n 's/.*"project"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$root/.rocketship.json" | head -n 1)
-  fi
-  case "$project" in
-    ''|*[!a-z0-9-]*) project="" ;;
-  esac
-fi
-
-set -- -sS -f --max-time 4 -K - -X POST -H 'Content-Type: application/json'
+set -- --max-time 2 -o "$body"
 [ -n "$project" ] && set -- "$@" -H "X-Rocketship-Project: $project"
+code=$(post "$payload" "$@")
 
-answer=$(printf 'header = "Authorization: Bearer %s"\n' "$ROCKETSHIP_TOKEN" | curl "$@" --data-binary "$payload" "$URL" 2>/dev/null) || exit 0
-case "$answer" in
-  *hookSpecificOutput*) printf '%s\n' "$answer" ;;
+case "$code" in
+  2??) grep -q hookSpecificOutput "$body" 2>/dev/null && cat "$body" && printf '\n' ;;
+  *) mark_down "$(failure_words "$code" "$body")" ;;
 esac
 exit 0

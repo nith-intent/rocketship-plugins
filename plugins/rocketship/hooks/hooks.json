@@ -6,11 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh",
-            "args": [
-              "${CLAUDE_PLUGIN_ROOT}/scripts/session-start.sh"
-            ],
-            "timeout": 10,
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/session-start.sh\"",
+            "timeout": 6,
             "statusMessage": "Loading Rocketship context"
           }
         ]
@@ -21,11 +18,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh",
-            "args": [
-              "${CLAUDE_PLUGIN_ROOT}/scripts/user-prompt.sh"
-            ],
-            "timeout": 6
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/user-prompt.sh\"",
+            "timeout": 4
           }
         ]
       }
@@ -35,15 +29,9 @@
         "matcher": "Edit|Write|MultiEdit|NotebookEdit",
         "hooks": [
           {
-            "type": "http",
-            "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks",
-            "headers": {
-              "Authorization": "Bearer $ROCKETSHIP_TOKEN"
-            },
-            "allowedEnvVars": [
-              "ROCKETSHIP_TOKEN"
-            ],
-            "timeout": 3
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/post-event.sh\"",
+            "async": true
           }
         ]
       }
@@ -52,15 +40,9 @@
       {
         "hooks": [
           {
-            "type": "http",
-            "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks",
-            "headers": {
-              "Authorization": "Bearer $ROCKETSHIP_TOKEN"
-            },
-            "allowedEnvVars": [
-              "ROCKETSHIP_TOKEN"
-            ],
-            "timeout": 3
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/post-event.sh\"",
+            "async": true
           }
         ]
       }
@@ -69,15 +51,9 @@
       {
         "hooks": [
           {
-            "type": "http",
-            "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks",
-            "headers": {
-              "Authorization": "Bearer $ROCKETSHIP_TOKEN"
-            },
-            "allowedEnvVars": [
-              "ROCKETSHIP_TOKEN"
-            ],
-            "timeout": 3
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/post-event.sh\"",
+            "timeout": 1
           }
         ]
       }
