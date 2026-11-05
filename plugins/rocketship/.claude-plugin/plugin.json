@@ -1,10 +1,18 @@
 {
   "name": "rocketship",
   "displayName": "Rocketship",
-  "version": "0.4.0",
-  "description": "INTENT's Rocketship in your IDE, with nothing to type: each session opens on its project, each message arrives with what Rocketship knows that bears on it, and Claude Code finds the rest itself (meetings, maps, the board, rules, knowledge) and says it came from Rocketship. Rocketship never sees your Claude sign-in; it only sees the Rocketship key you made on Me.",
+  "version": "0.5.0",
+  "description": "INTENT's Rocketship in your IDE, with nothing to type: each session opens on its project, each message arrives with what Rocketship knows that bears on it, and Claude Code finds the rest itself (meetings, maps, the board, rules, knowledge) and says it came from Rocketship. Rocketship never sees your Claude sign-in; it only sees the Rocketship key you made on Me, which Claude Code keeps in your keychain.",
   "author": {
     "name": "INTENT"
   },
-  "repository": "https://github.com/nith-intent/rocketship-plugins"
+  "repository": "https://github.com/nith-intent/rocketship-plugins",
+  "userConfig": {
+    "rocketship_key": {
+      "type": "string",
+      "title": "Rocketship key",
+      "description": "The key you made on Me in Rocketship (it starts rk_). Claude Code keeps it in your keychain. Leave it empty to use ROCKETSHIP_TOKEN from your profile instead.",
+      "sensitive": true
+    }
+  }
 }

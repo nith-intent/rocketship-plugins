@@ -4,30 +4,19 @@ INTENT's Claude Code plugin. Your own Claude Code, on your own plan, knows the p
 
 ## Install, once
 
-This repository is private for now, so installing needs read access to it on GitHub (ask Nith) and git signed in to GitHub on your machine. In a terminal, once:
+The plugin is public: anyone can add it, and it does nothing without a Rocketship key. You need git on your machine, nothing else.
 
-    gh auth login
-    gh auth setup-git
-
-Background updates of a private plugin also need `GITHUB_TOKEN` (or `GH_TOKEN`) in your environment. Without it, update by hand (below).
-
-1. **Make your key.** Open Rocketship, go to Me, and under "Your Claude Code" press "Create my key". Copy the line it shows. It is shown once and lasts 90 days.
-2. **Add it to your shell profile.**
-   - Mac: put this line in `~/.zshrc`:
-
-         export ROCKETSHIP_TOKEN=rk_...
-
-   - Windows: in a terminal, run:
-
-         setx ROCKETSHIP_TOKEN rk_...
-
-3. **Quit VS Code fully and open it again** (Cmd+Q on a Mac, not just the window; every window on Windows), so Claude Code picks the key up. In a terminal, open a new one.
-4. **Install the plugin.** Inside Claude Code, type:
+1. **Make your key.** Open Rocketship, go to Me, and under "Your Claude Code" press "Create my key". Copy it. It is shown once and lasts 90 days.
+2. **Install the plugin.** Inside Claude Code, type these two, one after the other:
 
        /plugin marketplace add nith-intent/rocketship-plugins
        /plugin install rocketship@rocketship-plugins
 
-5. **Open a new Claude Code session** and type `/rocketship:connect`. It answers "Connected to Rocketship as <your name>" and says which project the repo is.
+   Pick "Install for you" (user scope), so it works in every repo.
+3. **Paste the key when Claude Code asks for it** ("Rocketship key"). Claude Code keeps it in your keychain and asks only once. Or leave it empty and set `ROCKETSHIP_TOKEN` in your profile instead (`export ROCKETSHIP_TOKEN=rk_...` in `~/.zshrc` on a Mac, `setx ROCKETSHIP_TOKEN rk_...` on Windows), then quit VS Code fully and open it again.
+4. **Open a new Claude Code session.** It connects on its own and opens on the repo's project. `/rocketship:connect` checks it: it answers "Connected to Rocketship as <your name>" and says which project the repo is.
+
+To change the key (a new one every 90 days): `/plugin` > Installed > rocketship > Configure options, paste the new one and start a new session. In a terminal, `claude plugin configure rocketship@rocketship-plugins` shows whether it is set.
 
 Then, so Claude Code does not ask before it reads Rocketship, add Rocketship's reads to `permissions.allow` in `~/.claude/settings.json`. Me, under "Allow Rocketship's reads", gives the current line to copy. Today it is:
 
@@ -73,7 +62,7 @@ Never allow the whole server (`mcp__plugin_rocketship_rocketship__*`): that woul
 
 ## Point a repo at its project
 
-Rocketship works the project out from the repo's GitHub owner and name (its `origin` remote) when the project names that repository. To be sure, put a `.rocketship.json` at the repo root with the project's slug, the last part of its address in Rocketship (`/projects/<slug>`), for example:
+Rocketship works the project out from the repo's GitHub owner and name (its `origin` remote) when the project names that repository. A repository that no project names, under a GitHub owner whose other repositories are one client's one open project, is offered that project, and the session says its slug (never for INTENT's own organisations or work): `simba-global/simba-intent-frontend` is offered Simba's project when it names `simba-global/simba-intent-backend`. It is never put on it by that alone, since an owner like that may be your own account. To be sure, put a `.rocketship.json` at the repo root with the project's slug, the last part of its address in Rocketship (`/projects/<slug>`), for example:
 
     {"project": "mk-portal"}
 
@@ -81,7 +70,7 @@ It holds the slug and nothing else. Never commit client notes, meeting words or 
 
 ## Nothing to type
 
-Once the key is set and the repo names its project, Rocketship is simply there. In any other folder (a personal project, another client's repo) the plugin sends only the session's start, so Rocketship can tell whether the folder is a project: the session's id, the folder's path on your computer and the repository's GitHub owner and name. Rocketship keeps that session with its folder. When it is not sure the folder is a project, nothing more is sent: no message, no file name, no turn. With no key set, nothing is sent at all.
+Once the key is set and the repo names its project, Rocketship is simply there. In any other folder (a personal project, another client's repo) the plugin sends only the session's start, so Rocketship can tell whether the folder is a project: the session's id, the folder's path on your computer and the repository's GitHub owner and name. Rocketship keeps that session with its folder. When it is not sure the folder is a project, nothing more is sent: no message, no file name, no turn. With no key kept or set, nothing is sent at all.
 
 - **Each session** opens on the repo's project with a short brief: status, modules, the open board, the newest decisions, the maps.
 - **Each message** you type is checked against the project. When something Rocketship holds bears on it (a rule, a task, a knowledge page, a line from a meeting), the few passages that do arrive with your message, once each, and never for a short reply or a command. Rocketship reads the message for its words and never keeps it.
@@ -96,16 +85,28 @@ The commands still work when you want them:
 
 When a requirement is unclear, Claude asks it on the section with `ask_question`, so Jenny or the lead answers in Rocketship.
 
-## Updates and the address
+## Updates
 
-The server address in `.mcp.json` and `scripts/common.sh` is the dev Rocketship, https://rocketship.72-60-110-109.sslip.io. When Rocketship moves to its real name the plugin is updated here, with a new version. Inside Claude Code, `/plugin` > Marketplaces > rocketship-plugins > Update picks it up, or `claude plugin update rocketship` in a terminal.
+New versions come from this repository. To take one, inside Claude Code: `/plugin` > Marketplaces > rocketship-plugins > Update marketplace (or type `/plugin marketplace update rocketship-plugins`), then start a new session. In a terminal: `claude plugin update rocketship@rocketship-plugins`.
+
+To get them on their own, turn on auto-update once: `/plugin` > Marketplaces > rocketship-plugins > Enable auto-update. Claude Code keeps it off for marketplaces other than Anthropic's until you do. After an update it says "Plugin updated: rocketship", and the next session uses it.
+
+To release one: change it here, raise `version` in `plugins/rocketship/.claude-plugin/plugin.json` and in `.claude-plugin/marketplace.json` (the two stay the same), and push to `main`. Nobody gets a change until the version moves. A release that changes what the plugin sends goes out only once the Rocketship that reads it is live: 0.5.0 sends `ROCKETSHIP_TOKEN` as `X-Rocketship-Key`, which Rocketship before 5 Nov 2026 never reads.
+
+## The address
+
+The server address in `.mcp.json` and `scripts/common.sh` is the dev Rocketship, https://rocketship.72-60-110-109.sslip.io. When Rocketship moves to its real name, change both here with a new version.
+
+## How the key travels
+
+The plugin declares the key as a sensitive option (`userConfig.rocketship_key`), so Claude Code asks for it when the plugin is enabled and keeps it in the keychain, never in `settings.json`. It hands it to the MCP server as `Authorization: Bearer ${user_config.rocketship_key}` and to every hook as `CLAUDE_PLUGIN_OPTION_ROCKETSHIP_KEY`. With none kept, the MCP server sends `ROCKETSHIP_TOKEN` as `X-Rocketship-Key`, and the hooks read `ROCKETSHIP_TOKEN`. The hooks send it to curl on its config input, never on a command line. The key is the only secret; this repository holds none.
 
 ## If it does not connect
 
 A session that cannot use Rocketship says why in one line as it starts. Type `/rocketship:connect` for the fix.
 
-- No Rocketship tools, or "no key was sent": the key is not set where Claude Code can see it. VS Code was not fully restarted after step 2, or the line is not in your profile. Check with `echo $ROCKETSHIP_TOKEN` in a new terminal.
-- "Did not accept this Claude Code": the key expired or was revoked. Make a new one on Me, then steps 2 and 3 again.
+- No Rocketship tools, or "no key was sent": Claude Code keeps no key and `ROCKETSHIP_TOKEN` is not set. `/plugin` > Installed > rocketship > Configure options, paste the key, then start a new session.
+- "Did not accept this Claude Code": the key expired or was revoked. Make a new one on Me and paste it the same way.
 - "Could not be reached" or "had an error": Rocketship is down or your network is. The plugin tries again a minute later and never holds up a message meanwhile.
-- The key is set and the tools are still missing: inside Claude Code, `/plugin` shows whether `rocketship` is installed and enabled.
-- `/plugin marketplace add` fails to clone: you have no read access to this repository yet, or git is not signed in (`gh auth login`, `gh auth setup-git`).
+- The tools are still missing: `/plugin` shows whether `rocketship` is installed and enabled.
+- `/plugin marketplace add` fails to clone: check git is installed. If your machine has a GitHub SSH key that does not work, set `CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1` and try again.

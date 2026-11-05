@@ -10,6 +10,11 @@
 #                            server never holds up a message. A new key clears it.
 
 URL="${ROCKETSHIP_HOOK_URL:-https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks}"
+
+# The key: the one Claude Code keeps for the plugin (asked once when the plugin is enabled, kept in
+# the keychain, handed to hooks as CLAUDE_PLUGIN_OPTION_ROCKETSHIP_KEY), else ROCKETSHIP_TOKEN from
+# the profile. Every hook reads it as ROCKETSHIP_TOKEN from here on.
+ROCKETSHIP_TOKEN="${CLAUDE_PLUGIN_OPTION_ROCKETSHIP_KEY:-${ROCKETSHIP_TOKEN:-}}"
 STATE_DIR="${TMPDIR:-/tmp}"
 STATE_DIR="${STATE_DIR%/}"
 DOWN_FILE="$STATE_DIR/rocketship-down"

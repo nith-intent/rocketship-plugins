@@ -8,7 +8,7 @@
     {
       "name": "rocketship",
       "source": "./plugins/rocketship",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "description": "Connect your Claude Code to Rocketship: /rocketship:connect, /rocketship:project, /rocketship:next, /rocketship:handoff."
     }
   ]
