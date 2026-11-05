@@ -4,7 +4,29 @@
       {
         "matcher": "startup|resume|clear|compact",
         "hooks": [
-          { "type": "command", "command": "sh", "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/session-start.sh"], "timeout": 10, "statusMessage": "Loading Rocketship context" }
+          {
+            "type": "command",
+            "command": "sh",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/session-start.sh"
+            ],
+            "timeout": 10,
+            "statusMessage": "Loading Rocketship context"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/user-prompt.sh"
+            ],
+            "timeout": 6
+          }
         ]
       }
     ],
@@ -12,21 +34,51 @@
       {
         "matcher": "Edit|Write|MultiEdit|NotebookEdit",
         "hooks": [
-          { "type": "http", "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks", "headers": { "Authorization": "Bearer $ROCKETSHIP_TOKEN" }, "allowedEnvVars": ["ROCKETSHIP_TOKEN"], "timeout": 3 }
+          {
+            "type": "http",
+            "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks",
+            "headers": {
+              "Authorization": "Bearer $ROCKETSHIP_TOKEN"
+            },
+            "allowedEnvVars": [
+              "ROCKETSHIP_TOKEN"
+            ],
+            "timeout": 3
+          }
         ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          { "type": "http", "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks", "headers": { "Authorization": "Bearer $ROCKETSHIP_TOKEN" }, "allowedEnvVars": ["ROCKETSHIP_TOKEN"], "timeout": 3 }
+          {
+            "type": "http",
+            "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks",
+            "headers": {
+              "Authorization": "Bearer $ROCKETSHIP_TOKEN"
+            },
+            "allowedEnvVars": [
+              "ROCKETSHIP_TOKEN"
+            ],
+            "timeout": 3
+          }
         ]
       }
     ],
     "SessionEnd": [
       {
         "hooks": [
-          { "type": "http", "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks", "headers": { "Authorization": "Bearer $ROCKETSHIP_TOKEN" }, "allowedEnvVars": ["ROCKETSHIP_TOKEN"], "timeout": 3 }
+          {
+            "type": "http",
+            "url": "https://rocketship.72-60-110-109.sslip.io/api/bridge/hooks",
+            "headers": {
+              "Authorization": "Bearer $ROCKETSHIP_TOKEN"
+            },
+            "allowedEnvVars": [
+              "ROCKETSHIP_TOKEN"
+            ],
+            "timeout": 3
+          }
         ]
       }
     ]

@@ -26,19 +26,26 @@ Rocketship works the project out from the repo's GitHub name when the project na
 
 It holds the slug and nothing else. Never commit client notes, meeting words or a brief to the repo.
 
-## Each day
+## Nothing to type
 
-- `/rocketship:project`: load the project and keep a short working brief. Ask it "what did the client say about X" or "how should X work" and it searches the meetings and maps first, and cites the meeting date and line.
+Once the key is set and the repo names its project, Rocketship is simply there:
+
+- **Each session** opens on the repo's project with a short brief: status, modules, the open board, the newest decisions, the maps.
+- **Each message** you type is checked against the project. When something Rocketship holds bears on it (a rule, a task, a knowledge page, a line from a meeting), the few passages that do arrive with your message, once each, and never for a short reply or a command. Rocketship reads the message for its words and never keeps it.
+- **Claude Code asks for the rest itself** with `find_in_project`, then reads only the one task, meeting or page it needs.
+- **It says so.** Whenever an answer uses something from Rocketship, Claude names it: "From Rocketship, the 28 Sep meeting: ...".
+
+The commands still work when you want them:
+
+- `/rocketship:project`: load the whole project and keep a working brief.
 - `/rocketship:next`: take your next task, read what stands behind it and set up the branch.
 - `/rocketship:handoff`: fix what QA found if it failed, run the checks, and hand off with the pull request.
 
 When a requirement is unclear, Claude asks it on the section with `ask_question`, so Jenny or the lead answers in Rocketship.
 
-When a session starts, resumes, clears or compacts, the plugin sends Rocketship the folder you are in (and the slug in `.rocketship.json`), and Rocketship answers with the project's context.
-
 ## Updates and the address
 
-The server address in `.mcp.json`, `hooks/hooks.json` and `scripts/session-start.sh` is the dev Rocketship, https://rocketship.72-60-110-109.sslip.io. When Rocketship moves to its real name the plugin is updated here, with a new version, and `claude plugin update rocketship` picks it up.
+The server address in `.mcp.json`, `hooks/hooks.json`, `scripts/session-start.sh` and `scripts/user-prompt.sh` is the dev Rocketship, https://rocketship.72-60-110-109.sslip.io. When Rocketship moves to its real name the plugin is updated here, with a new version, and `claude plugin update rocketship` picks it up.
 
 ## If it does not connect
 
